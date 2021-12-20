@@ -1,4 +1,4 @@
-/*
+/*a
 Copyright © 2021 NAME HERE <EMAIL ADDRESS>
 
 */
@@ -6,9 +6,9 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net/http"
 
+	"github.com/PrashantBtkl/unbundle-reddit-cli/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -20,8 +20,7 @@ var submissionsCmd = &cobra.Command{
 	Short: "get reddit submissions",
 	Long:  "get reddit submissions",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("submissions called", *subReddit, *query, *sortType)
-		PushShiftAPI(subReddit, query, sortType)
+		getSubmissions(subReddit, query, sortType)
 	},
 }
 
@@ -33,9 +32,8 @@ func init() {
 	subReddit = submissionsCmd.Flags().StringP("subreddit", "", "", "Restrict to a specific subreddit")
 }
 
-func PushShiftAPI(subReddit, query, sortType *string) {
-	client := &http.Client{}
-	req, err := http.NewRequest("GET", "https://api.pushshift.io/reddit/search/", nil)
+func getSubmissions(subReddit, query, sortType *string) {
+	req, err := http.NewRequest("GET", "https://api.pushshift.io/reddit/search/submission/", nil)
 	if err != nil {
 		panic(err)
 	}
@@ -43,18 +41,15 @@ func PushShiftAPI(subReddit, query, sortType *string) {
 	q := req.URL.Query()
 	q.Add("subreddit", *subReddit)
 	q.Add("query", *query)
-	q.Add("sorttype", *sortType)
+	q.Add("sort_type", *sortType)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := client.Do(req)
+	resp, err := utils.MakeRequest(req)
 	if err != nil {
 		fmt.Println("Errored when sending request to the server")
 		return
 	}
 
-	defer resp.Body.Close()
-	resp_body, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(resp))
 
-	fmt.Println(resp.Status)
-	fmt.Println(string(resp_body))
 }

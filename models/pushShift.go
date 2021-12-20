@@ -1,7 +1,7 @@
 package models
 
 type PushShiftResponse struct {
-	data []PushShiftData
+	data []PushShiftData `json:"data"`
 }
 
 type PushShiftData struct {
